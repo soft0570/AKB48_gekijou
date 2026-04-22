@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ポジション判定</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .penlight {
+            color: #888;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        strong {
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>今日のメンバー入力</h2>
+    <button onclick="selectShow('kokokarada')">ここからだ</button>
+    <button onclick="selectShow('reset')">RESET</button><br>
+
+    <textarea id="members" rows="3" cols="80"></textarea><br>
+    <button onclick="checkPositions()">判定</button>
+
+    <h2>結果</h2>
+    <div id="result"></div>
+
+    <script src="7.js"></script>
+</body>
+
+</html>

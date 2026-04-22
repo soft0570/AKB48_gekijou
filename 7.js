@@ -1,0 +1,346 @@
+const MEMBER_COLORS = {
+    // 17期〜19期・研究生・現役メンバー
+    "秋山由奈": "水色×水色",
+    "新井彩永": "黄×黄",
+    "伊藤百花": "薄ピンク×薄ピンク",
+    "岩立沙穂": "青×白×赤",
+    "太田有紀": "水色×紫",
+    "大盛真歩": "薄ピンク×白",
+    "奥本カイリ": "水色×青",
+    "川村結衣": "赤×紫",
+    "工藤華純": "赤×緑",
+    "久保姫菜乃": "濃ピンク×薄ピンク",
+    "黒須遥香": "黄",
+    "迫由芽実": "白×水色",
+    "佐藤綺星": "赤×白",
+    "白鳥沙怜": "濃ピンク×白",
+    "鈴木くるみ": "紫×白",
+    "田口愛佳": "赤×赤",
+    "千葉恵里": "黄×青",
+    "長友彩海": "黄×水色",
+    "成田香姫奈": "紫×黄",
+    "橋本恵理子": "赤×黄",
+    "畠山希美": "紫×青",
+    "花田藍衣": "黄×白",
+    "平田侑希": "白×紫",
+    "福岡聖菜": "青×白",
+    "布袋百椛": "赤×ピンク",
+    "正鋳真優": "白×白",
+    "水島美結": "水色×ピンク",
+    "向井地美音": "赤×ピンク",
+    "武藤小麟": "水色×濃ピンク",
+    "八木愛月": "ピンク×黄",
+    "山内瑞葵": "ピンク×黄",
+    "山口結愛": "赤×オレンジ",
+    "山﨑空": "紫×ピンク",
+    "山根涼羽": "ピンク×緑",
+    "大賀彩姫": "青×黄×緑",
+    "近藤沙樹": "オレンジ×緑",
+    "丸山ひなた": "濃ピンク×青",
+    "髙橋舞桜": "紫×紫",
+    "田中沙友利": "水色×黄緑",
+    "牧戸愛茉": "濃ピンク×濃ピンク",
+    "森川優": "水色×オレンジ",
+    "渡邉葵心": "青×青",
+
+    // 旧チーム8・その他
+    "髙橋彩音": "水色×赤",
+    "小栗有以": "黄×ピンク",
+    "橋本陽菜": "ピンク×白",
+    "坂川陽香": "赤×オレンジ",
+    "永野芹佳": "白×白×白",
+    "徳永羚海": "ピンク×青",
+    "下尾みう": "白×紫",
+    "行天優莉奈": "ピンク×ピンク",
+    "倉野尾成美": "赤×緑"
+};
+const COLOR_CODE_MAP = {
+    "水色": "#87CEEB",
+    "青": "#0000FF",
+    "青色": "#0000FF",
+    "赤": "#FF0000",
+    "赤色": "#FF0000",
+    "黄": "#FFFF00",
+    "黄色": "#FFFF00",
+    "緑": "#008000",
+    "ピンク": "#FFC0CB",
+    "薄ピンク": "#FFB6C1",
+    "濃ピンク": "#FF1493",
+    "白": "#FFFFFF",
+    "白色": "#FFFFFF",
+    "紫": "#800080",
+    "紫色": "#800080",
+    "オレンジ": "#FFA500",
+    "黄緑": "#9ACD32",
+    "薄紫": "#E6E6FA"
+};
+const SHOWS = {
+    kokokarada: {
+        name: "ここからだ公演",
+        songs: [
+            {
+                name: "Lollipop",
+                positions: [
+                    ["千葉恵里", "橋本陽菜", "奥本カイリ"],
+                    ["小栗有以", "橋本恵理子", "髙橋彩音", "長友彩海"],
+                    ["山内瑞葵", "花田藍衣", "徳永羚海", "大盛真歩", "下尾みう", "橋本陽菜"]
+                ]
+            },
+            {
+                name: "風の待ち伏せ",
+                positions: [
+                    ["秋山由奈", "正鋳真優", "畠山希美"],
+                    ["水島美結", "布袋百椛", "白鳥沙怜"],
+                    ["佐藤綺星", "長友彩海", "久保姫菜乃"],
+                    ["山﨑空", "川村結衣", "丸山ひなた"]
+                ]
+            },
+            {
+                name: "クリスマスリング",
+                positions: [
+                    ["永野芹佳", "坂川陽香", "鈴木くるみ", "平田侑希"],
+                    ["下尾みう", "迫由芽実", "佐藤綺星", "近藤沙樹"],
+                    ["倉野尾成美", "田口愛佳", "正鋳真優"],
+                    ["鈴木くるみ", "工藤華純"],
+                    ["山口結愛", "武藤小麟"]
+                ]
+            },
+            {
+                name: "2月のMermaid",
+                positions: [
+                    ["八木愛月", "徳永羚海", "新井彩永"]
+                ]
+            },
+            {
+                name: "振り向きざまのキッス",
+                positions: [
+                    ["向井地美音", "太田有紀", "千葉恵里", "岩立沙穂", "鈴木くるみ"],
+                    ["伊藤百花", "平田侑希", "大賀彩姫", "永野芹佳"],
+                    ["村山彩希", "成田香姫奈", "福岡聖菜", "秋山由奈", "田口愛佳"]
+                ]
+            }
+        ]
+    },
+    reset: {
+        name: "RESET公演",
+        songs: [
+            {
+                name: "制服レジスタンス",
+                id: "seifuku",
+                positions: [
+                    ["坂川陽香", "橋本恵理子", "橋本陽菜", "川村結衣", "秋山由奈", "徳永羚海", "近藤沙樹"],
+                    ["大盛真歩", "込山榛香", "高橋彩音", "倉野尾成美", "長友彩海", "村山彩希", "花田藍衣", "山﨑空", "工藤華純", "山内瑞葵"],
+                    ["徳永羚海", "畠山希美", "水島美結", "山口結愛", "橋本陽菜", "長友彩海", "久保姫菜乃", "山内瑞葵"]
+                ]
+            },
+            {
+                name: "奇跡は間に合わない",
+                id: "kiseki",
+                positions: [
+                    ["岩立沙穂", "太田有紀", "永野芹佳", "鈴木くるみ", "長友彩海", "成田香姫奈"],
+                    ["正鋳真優", "平田侑希", "鈴木くるみ", "新井彩永", "岩立沙穂", "福岡聖菜"],
+                    ["田口愛佳", "福岡聖菜", "久保姫菜乃", "下尾みう", "工藤華純", "正鋳真優", "坂川陽香"]
+                ]
+            },
+            {
+                name: "逆転王子様",
+                id: "gyakuten",
+                positions: [
+                    ["武藤小麟", "布袋百椛", "倉野尾成美", "八木愛月", "橋本陽菜", "福岡聖菜", "近藤沙樹", "水島美結"],
+
+                    // 👉 制服レジスタンス ポジ2
+                    "ref:seifuku:1",
+
+                    ["長友彩海", "橋本陽菜", "向井地美音", "佐藤綺星", "迫由芽実", "徳永羚海"]
+                ]
+            },
+            {
+                name: "明日のためにキスを",
+                positions: [
+                    // 制服レジスタンス ポジ3
+                    "ref:seifuku:2",
+
+                    // 制服レジスタンス ポジ1
+                    "ref:seifuku:0",
+
+                    // 奇跡は間に合わない ポジ3
+                    "ref:kiseki:2",
+
+                    // 奇跡は間に合わない ポジ1
+                    "ref:kiseki:0"
+                ]
+            },
+            {
+                name: "心の端のソファー",
+                positions: [
+                    // 逆転王子様 ポジ3
+                    "ref:gyakuten:2",
+
+                    // 逆転王子様 ポジ1
+                    "ref:gyakuten:0",
+
+                    // 奇跡は間に合わない ポジ2
+                    "ref:kiseki:1"
+                ]
+            }
+        ]
+    }
+};
+
+let currentShow = SHOWS.kokokarada;
+function selectShow(key) {
+    currentShow = SHOWS[key];
+
+    document.getElementById("result").innerHTML =
+        `<p>選択中：${currentShow.name}</p><hr>`;
+}
+
+// スロット構築：refはそのままで、実体のあるポジション（配列）だけを対象にする
+function buildAllSlots(show) {
+    const slots = [];
+    for (const song of show.songs) {
+        song.positions.forEach((pos, i) => {
+            slots.push({
+                song: song.name,
+                songKey: song.id || song.name, // 参照用のキー
+                index: i,
+                options: pos // 文字列(ref)か配列
+            });
+        });
+    }
+    return slots;
+}
+
+function solve(show, members) {
+    const slots = buildAllSlots(show);
+    const result = Array(slots.length).fill(null);
+    const used = new Set();
+
+    function backtrack(i) {
+        // 最後まで到達しなくても、途中の結果を保持するために true を返す
+        if (i === slots.length) return true;
+
+        const slot = slots[i];
+
+        // 参照(ref)の場合はスキップして次へ
+        if (typeof slot.options === "string") {
+            result[i] = slot.options;
+            return backtrack(i + 1);
+        }
+
+        const options = slot.options.filter(m => members.includes(m));
+
+        // 候補者がいない、または全員使用済みの場合は、この枠を null のままにして次へ進む
+        // これにより「全滅」を防ぎます
+        let foundAny = false;
+        for (const name of options) {
+            if (used.has(name)) continue;
+
+            result[i] = name;
+            used.add(name);
+            foundAny = true;
+
+            if (backtrack(i + 1)) return true;
+
+            used.delete(name);
+            result[i] = null;
+            foundAny = false;
+        }
+
+        // 誰も入れなかった場合、nullのまま次を試す（これが重要！）
+        if (!foundAny) {
+            result[i] = null;
+            return backtrack(i + 1);
+        }
+
+        return false;
+    }
+
+    // backtrack(0) が false を返すことは基本的になくなります
+    backtrack(0);
+
+    // ref を解決して返す
+    return result.map((val, idx) => {
+        if (typeof val === "string" && val.startsWith("ref:")) {
+            const [, targetId, targetIdx] = val.split(":");
+            const targetSlotIndex = slots.findIndex(s => s.songKey === targetId && s.index === Number(targetIdx));
+            return targetSlotIndex !== -1 ? result[targetSlotIndex] : null;
+        }
+        return val;
+    });
+}
+function getSingleColorStyle(colorName) {
+    const colorCode = COLOR_CODE_MAP[colorName.trim()] || "#ccc";
+
+    const baseStyle = [
+        `background-color: ${colorCode}`,
+        "color: #000",
+        "text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff",
+        "border: 1px solid #999",
+        "padding: 2px 6px",
+        "font-weight: bold",
+        "display: inline-block",
+        "min-width: 40px", // ボックスの幅を揃える
+        "text-align: center",
+        "line-height: 1.2",
+        "vertical-align: middle",
+        "font-size: 0.85em"
+    ].join("; ");
+
+    return `style="${baseStyle}"`;
+}
+
+function checkPositions() {
+    const input = document.getElementById("members").value;
+    const members = input.split("・").map(m => m.trim()).filter(Boolean);
+
+    const slots = buildAllSlots(currentShow);
+    const solved = solve(currentShow, members);
+
+    let html = "";
+    let used = new Set();
+
+    slots.forEach((slot, i) => {
+        const name = solved?.[i];
+
+        if (name) {
+            used.add(name);
+            // checkPositions 関数内
+            const colorStr = MEMBER_COLORS[name] || "";
+
+            let colorBadges = "";
+            if (colorStr) {
+                const colorArray = colorStr.split("×");
+                // 各色をバッジにし、その間を「×」でつなぐ
+                colorBadges = colorArray.map(c => {
+                    const style = getSingleColorStyle(c);
+                    return `<span ${style}>${c.trim()}</span>`;
+                }).join('<span style="margin: 0 6px; font-weight: bold; vertical-align: middle;">×</span>');
+            }
+
+            // 最後にHTMLへ追加
+            html += `<p>${slot.song} ポジ${slot.index + 1}：<strong>${name}</strong> <span style="margin-left:8px;">${colorBadges}</span></p>`;
+        } else {
+            html += `<p>${slot.song} ポジ${slot.index + 1}：⚠️ 未確定</p>`;
+        }
+    });
+
+    // 未使用メンバー部分も同様に修正
+    const unused = members.filter(m => !used.has(m));
+    if (unused.length) {
+        html += `<hr><h3 style="color:orange;">未使用メンバー</h3>`;
+        const unusedHtml = unused.map(m => {
+            const colorStr = MEMBER_COLORS[m] || "";
+            let colorBadges = "";
+            if (colorStr) {
+                colorBadges = colorStr.split("×").map(c => {
+                    return `<span ${getSingleColorStyle(c)}>${c.trim()}</span>`;
+                }).join("");
+            }
+            return `<div style="margin-bottom:5px;">${m} ${colorBadges}</div>`;
+        }).join("");
+        html += `<p>${unusedHtml}</p>`;
+    }
+
+    document.getElementById("result").innerHTML = html;
+}
