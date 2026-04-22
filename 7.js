@@ -322,10 +322,10 @@ function checkPositions() {
                 }).join("");
             }
 
-            html += `<span style="font-size: 0.85em; color: #666;">${slot.song} ポジ${slot.index + 1}</span><br>`;
+            html += `<span style="font-size: 0.85em; color: #666;">${slot.song} ${slot.index + 1}</span><br>`;
             html += `<strong style="font-size: 1.1em;">${name}</strong> <div style="margin-top: 5px;">${colorBadges}</div>`;
         } else {
-            html += `<span style="font-size: 0.85em; color: #666;">${slot.song} ポジ${slot.index + 1}</span><br>`;
+            html += `<span style="font-size: 0.85em; color: #666;">${slot.song} ${slot.index + 1}</span><br>`;
             html += `<span style="color: #ccc;">⚠️ 未確定</span>`;
         }
 
