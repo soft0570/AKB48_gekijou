@@ -213,61 +213,65 @@ function buildAllSlots(show) {
 
 function solve(show, members) {
     const slots = buildAllSlots(show);
-    const result = Array(slots.length).fill(null);
-    const used = new Set();
+    if (!slots.length) return null;
 
-    function backtrack(i) {
-        // 最後まで到達しなくても、途中の結果を保持するために true を返す
-        if (i === slots.length) return true;
+    let bestResult = null;
+    let maxUsedCount = -1;
+
+    function backtrack(i, currentResult, usedSet) {
+        // 全ポジションを検討し終わった場合
+        if (i === slots.length) {
+            const usedCount = usedSet.size;
+            // これまでの結果より「使っている人数」が多い場合、結果を更新
+            if (usedCount > maxUsedCount) {
+                maxUsedCount = usedCount;
+                bestResult = [...currentResult];
+            }
+            return;
+        }
 
         const slot = slots[i];
 
-        // 参照(ref)の場合はスキップして次へ
-        if (typeof slot.options === "string") {
-            result[i] = slot.options;
-            return backtrack(i + 1);
+        // 参照ポジション（ref）の処理
+        if (typeof slot.options === "string" && slot.options.startsWith("ref:")) {
+            const [, id, tidx] = slot.options.split(":");
+            const targetIdx = slots.findIndex(s => s.songKey === id && s.index === Number(tidx));
+            currentResult[i] = currentResult[targetIdx];
+            backtrack(i + 1, currentResult, usedSet);
+            return;
         }
 
+        // そのポジションに入れる候補メンバーを抽出
         const options = slot.options.filter(m => members.includes(m));
 
-        // 候補者がいない、または全員使用済みの場合は、この枠を null のままにして次へ進む
-        // これにより「全滅」を防ぎます
-        let foundAny = false;
+        // 候補がいない場合
+        if (options.length === 0) {
+            currentResult[i] = null;
+            backtrack(i + 1, currentResult, usedSet);
+            return;
+        }
+
+        // 各候補メンバーを試す
         for (const name of options) {
-            if (used.has(name)) continue;
+            const alreadyUsed = usedSet.has(name);
+            currentResult[i] = name;
 
-            result[i] = name;
-            used.add(name);
-            foundAny = true;
+            // 新しいメンバーを使う場合はカウントが増える
+            if (!alreadyUsed) usedSet.add(name);
 
-            if (backtrack(i + 1)) return true;
+            backtrack(i + 1, currentResult, usedSet);
 
-            used.delete(name);
-            result[i] = null;
-            foundAny = false;
+            if (!alreadyUsed) usedSet.delete(name);
         }
 
-        // 誰も入れなかった場合、nullのまま次を試す（これが重要！）
-        if (!foundAny) {
-            result[i] = null;
-            return backtrack(i + 1);
-        }
-
-        return false;
+        // 「誰も配置しない（空席にする）」という選択肢も試す（より多くの人数を他で使うため）
+        currentResult[i] = null;
+        backtrack(i + 1, currentResult, usedSet);
     }
 
-    // backtrack(0) が false を返すことは基本的になくなります
-    backtrack(0);
-
-    // ref を解決して返す
-    return result.map((val, idx) => {
-        if (typeof val === "string" && val.startsWith("ref:")) {
-            const [, targetId, targetIdx] = val.split(":");
-            const targetSlotIndex = slots.findIndex(s => s.songKey === targetId && s.index === Number(targetIdx));
-            return targetSlotIndex !== -1 ? result[targetSlotIndex] : null;
-        }
-        return val;
-    });
+    // 計算開始
+    backtrack(0, Array(slots.length).fill(null), new Set());
+    return bestResult;
 }
 function getSingleColorStyle(colorName) {
     const colorCode = COLOR_CODE_MAP[colorName.trim()] || "#ccc";
