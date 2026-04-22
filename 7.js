@@ -291,55 +291,65 @@ function getSingleColorStyle(colorName) {
 }
 
 function checkPositions() {
+    if (!currentShow) { alert("公演を選択してください"); return; }
     const input = document.getElementById("members").value;
     const members = input.split("・").map(m => m.trim()).filter(Boolean);
-
     const slots = buildAllSlots(currentShow);
     const solved = solve(currentShow, members);
 
     let html = "";
     let used = new Set();
 
+    // --- メインポジションの表示 ---
     slots.forEach((slot, i) => {
         const name = solved?.[i];
+        html += `<div style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px;">`;
 
         if (name) {
             used.add(name);
-            // checkPositions 関数内
             const colorStr = MEMBER_COLORS[name] || "";
-
             let colorBadges = "";
             if (colorStr) {
-                const colorArray = colorStr.split("×");
-                // 各色をバッジにし、その間を「×」でつなぐ
-                colorBadges = colorArray.map(c => {
-                    const style = getSingleColorStyle(c);
-                    return `<span ${style}>${c.trim()}</span>`;
-                }).join('<span style="margin: 0 6px; font-weight: bold; vertical-align: middle;">×</span>');
+                const colors = colorStr.split("×");
+                colorBadges = colors.map((c, idx, arr) => {
+                    const badge = `<span ${getSingleColorStyle(c)}>${c.trim()}</span>`;
+                    return idx < arr.length - 1 ? `${badge} × ` : badge;
+                }).join("");
             }
 
-            // 最後にHTMLへ追加
-            html += `<p>${slot.song} ポジ${slot.index + 1}：<strong>${name}</strong> <span style="margin-left:8px;">${colorBadges}</span></p>`;
+            html += `<span style="font-size: 0.85em; color: #666;">${slot.song} ポジ${slot.index + 1}</span><br>`;
+            html += `<strong style="font-size: 1.1em;">${name}</strong> <div style="margin-top: 5px;">${colorBadges}</div>`;
         } else {
-            html += `<p>${slot.song} ポジ${slot.index + 1}：⚠️ 未確定</p>`;
+            html += `<span style="font-size: 0.85em; color: #666;">${slot.song} ポジ${slot.index + 1}</span><br>`;
+            html += `<span style="color: #ccc;">⚠️ 未確定</span>`;
         }
+
+        html += `</div>`;
     });
 
-    // 未使用メンバー部分も同様に修正
+    // --- 未使用メンバーの表示（ここで色が出るように修正） ---
     const unused = members.filter(m => !used.has(m));
     if (unused.length) {
-        html += `<hr><h3 style="color:orange;">未使用メンバー</h3>`;
-        const unusedHtml = unused.map(m => {
+        html += `<hr style="border: 2px solid orange; margin-top: 20px;">`;
+        html += `<h3 style="color:orange; margin-bottom: 15px;">未使用メンバー</h3>`;
+
+        unused.forEach(m => {
             const colorStr = MEMBER_COLORS[m] || "";
             let colorBadges = "";
             if (colorStr) {
-                colorBadges = colorStr.split("×").map(c => {
-                    return `<span ${getSingleColorStyle(c)}>${c.trim()}</span>`;
+                const colors = colorStr.split("×");
+                colorBadges = colors.map((c, idx, arr) => {
+                    const badge = `<span ${getSingleColorStyle(c)}>${c.trim()}</span>`;
+                    return idx < arr.length - 1 ? `${badge} × ` : badge;
                 }).join("");
             }
-            return `<div style="margin-bottom:5px;">${m} ${colorBadges}</div>`;
-        }).join("");
-        html += `<p>${unusedHtml}</p>`;
+
+            // 未使用メンバーも1人ずつ枠を作って見やすくします
+            html += `<div style="margin-bottom: 12px; padding: 8px; background: #fffaf0; border-radius: 5px;">`;
+            html += `<strong style="font-size: 1.0em;">${m}</strong><br>`;
+            html += `<div style="margin-top: 4px;">${colorBadges || '<span style="color:#999; font-size:0.8em;">カラー未登録</span>'}</div>`;
+            html += `</div>`;
+        });
     }
 
     document.getElementById("result").innerHTML = html;
