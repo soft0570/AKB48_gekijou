@@ -63,7 +63,7 @@ const COLOR_CODE_MAP = {
     "黄": "#FFFF00",
     "黄色": "#FFFF00",
     "緑": "#008000",
-    "ピンク": "#FFC0CB",
+    "ピンク": "#F172A3",
     "薄ピンク": "#FFB6C1",
     "濃ピンク": "#FF1493",
     "白": "#FFFFFF",
@@ -293,7 +293,8 @@ function getSingleColorStyle(colorName) {
 function checkPositions() {
     if (!currentShow) { alert("公演を選択してください"); return; }
     const input = document.getElementById("members").value;
-    const members = input.split(/[\n・、\s]+/).map(m => m.trim()).filter(Boolean);
+    const rawmembers = input.split(/[\n・、\s]+/).map(m => m.trim()).filter(Boolean);
+    const members = Array.from(new Set(rawmembers));
     const slots = buildAllSlots(currentShow);
     const solved = solve(currentShow, members);
 
