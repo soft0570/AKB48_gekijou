@@ -293,7 +293,7 @@ function getSingleColorStyle(colorName) {
 function checkPositions() {
     if (!currentShow) { alert("公演を選択してください"); return; }
     const input = document.getElementById("members").value;
-    const members = input.split("・").map(m => m.trim()).filter(Boolean);
+    const members = input.split(/[\n・、\s]+/).map(m => m.trim()).filter(Boolean);
     const slots = buildAllSlots(currentShow);
     const solved = solve(currentShow, members);
 
