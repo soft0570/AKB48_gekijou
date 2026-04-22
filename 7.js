@@ -355,3 +355,11 @@ function checkPositions() {
 
     document.getElementById("result").innerHTML = html;
 }
+function clearAll() {
+    // テキストエリアを空にする
+    document.getElementById("members").value = "";
+    // 結果表示エリアも空にする
+    document.getElementById("result").innerHTML = "";
+    // 入力欄にカーソルを合わせる（すぐに貼り付けられるように）
+    document.getElementById("members").focus();
+}
