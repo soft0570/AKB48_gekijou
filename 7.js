@@ -235,8 +235,16 @@ function solve(show, members) {
         // 参照ポジション（ref）の処理
         if (typeof slot.options === "string" && slot.options.startsWith("ref:")) {
             const [, id, tidx] = slot.options.split(":");
-            const targetIdx = slots.findIndex(s => s.songKey === id && s.index === Number(tidx));
-            currentResult[i] = currentResult[targetIdx];
+            const targetIdx = slots.findIndex(
+                s => s.songKey === id && s.index === Number(tidx)
+            );
+
+            if (targetIdx >= 0 && targetIdx < i) {
+                currentResult[i] = currentResult[targetIdx];
+            } else {
+                currentResult[i] = null;
+            }
+
             backtrack(i + 1, currentResult, usedSet);
             return;
         }
