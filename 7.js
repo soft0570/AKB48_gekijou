@@ -146,12 +146,12 @@ const SHOWS = {
                 name: "逆転王子様",
                 id: "gyakuten",
                 positions: [
-                    ["武藤小麟", "布袋百椛", "倉野尾成美", "八木愛月", "橋本陽菜", "福岡聖菜", "近藤沙樹", "水島美結","行天優莉奈"],
+                    ["武藤小麟", "布袋百椛", "倉野尾成美", "八木愛月", "橋本陽菜", "福岡聖菜", "近藤沙樹", "水島美結", "行天優莉奈"],
 
                     // 👉 制服レジスタンス ポジ2
                     "ref:seifuku:1",
 
-                    ["長友彩海", "橋本陽菜", "向井地美音", "佐藤綺星", "迫由芽実", "徳永羚海","山根涼羽"]
+                    ["長友彩海", "橋本陽菜", "向井地美音", "佐藤綺星", "迫由芽実", "徳永羚海", "山根涼羽"]
                 ]
             },
             {
@@ -253,6 +253,8 @@ function solve(show, members) {
 
         // 各候補メンバーを試す
         for (const name of options) {
+            if (usedSet.has(name)) continue;
+
             const alreadyUsed = usedSet.has(name);
             currentResult[i] = name;
 
@@ -305,32 +307,61 @@ function checkPositions() {
     let html = "";
     let used = new Set();
 
-    // --- メインポジションの表示 ---
-    slots.forEach((slot, i) => {
-        const name = solved?.[i];
-        html += `<div style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px;">`;
+    // --- メインポジションの表示（横並び） ---
+    currentShow.songs.forEach(song => {
+        html += `<div style="margin-bottom:20px;">`;
 
-        if (name) {
-            used.add(name);
-            const colorStr = MEMBER_COLORS[name] || "";
-            let colorBadges = "";
-            if (colorStr) {
-                const colors = colorStr.split("×");
-                colorBadges = colors.map((c, idx, arr) => {
-                    const badge = `<span ${getSingleColorStyle(c)}>${c.trim()}</span>`;
-                    return idx < arr.length - 1 ? `${badge} × ` : badge;
-                }).join("");
+        // 曲名
+        html += `<div style="font-weight:bold; margin-bottom:8px;">${song.name}</div>`;
+
+        // 横並びコンテナ
+        html += `<div style="display:flex; gap:10px; flex-wrap:wrap;">`;
+
+        song.positions.forEach((_, idx) => {
+            const slotIndex = slots.findIndex(s =>
+                s.song === song.name && s.index === idx
+            );
+
+            const name = solved?.[slotIndex];
+
+            html += `<div style="
+            min-width:120px;
+            padding:6px;
+            border:1px solid #ddd;
+            border-radius:6px;
+            background:#fafafa;
+            text-align:center;
+        ">`;
+
+            html += `<div style="font-size:0.75em; color:#666;">${idx + 1}</div>`;
+
+            if (name) {
+                used.add(name);
+
+                const colorStr = MEMBER_COLORS[name] || "";
+                let colorBadges = "";
+
+                if (colorStr) {
+                    const colors = colorStr.split("×");
+                    colorBadges = colors.map((c, i, arr) => {
+                        const badge = `<span ${getSingleColorStyle(c)}>${c.trim()}</span>`;
+                        return i < arr.length - 1 ? `${badge}×` : badge;
+                    }).join("");
+                }
+
+                html += `<div style="font-weight:bold;">${name}</div>`;
+                html += `<div style="margin-top:4px;">${colorBadges}</div>`;
+            } else {
+                html += `<div style="color:#ccc;">未確定</div>`;
             }
 
-            html += `<span style="font-size: 0.85em; color: #666;">${slot.song} ${slot.index + 1}</span><br>`;
-            html += `<strong style="font-size: 1.1em;">${name}</strong> <div style="margin-top: 5px;">${colorBadges}</div>`;
-        } else {
-            html += `<span style="font-size: 0.85em; color: #666;">${slot.song} ${slot.index + 1}</span><br>`;
-            html += `<span style="color: #ccc;">⚠️ 未確定</span>`;
-        }
+            html += `</div>`;
+        });
 
         html += `</div>`;
+        html += `</div>`;
     });
+
 
     // --- 未使用メンバーの表示（ここで色が出るように修正） ---
     const unused = members.filter(m => !used.has(m));
