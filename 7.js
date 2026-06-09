@@ -215,17 +215,31 @@ function solve(show, members) {
     const slots = buildAllSlots(show);
     if (!slots.length) return null;
 
-    let bestResult = null;
+    let bestResults = [];
     let maxUsedCount = -1;
+    const seen = new Set(); // 重複防止（重要）
+
 
     function backtrack(i, currentResult, usedSet) {
         // 全ポジションを検討し終わった場合
         if (i === slots.length) {
             const usedCount = usedSet.size;
             // これまでの結果より「使っている人数」が多い場合、結果を更新
+            const key = currentResult.join(",");
+
             if (usedCount > maxUsedCount) {
                 maxUsedCount = usedCount;
-                bestResult = [...currentResult];
+                bestResults = [];
+                seen.clear();
+
+                seen.add(key);
+                bestResults.push([...currentResult]);
+
+            } else if (usedCount === maxUsedCount) {
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    bestResults.push([...currentResult]);
+                }
             }
             return;
         }
@@ -281,7 +295,7 @@ function solve(show, members) {
 
     // 計算開始
     backtrack(0, Array(slots.length).fill(null), new Set());
-    return bestResult;
+    return bestResults;
 }
 function getSingleColorStyle(colorName) {
     const colorCode = COLOR_CODE_MAP[colorName.trim()] || "#ccc";
@@ -306,98 +320,170 @@ function getSingleColorStyle(colorName) {
 
 function checkPositions() {
     if (!currentShow) { alert("公演を選択してください"); return; }
+
     const input = document.getElementById("members").value;
     const rawmembers = input.split(/[\n・、\s]+/).map(m => m.trim()).filter(Boolean);
     const members = Array.from(new Set(rawmembers));
+
     const slots = buildAllSlots(currentShow);
-    const solved = solve(currentShow, members);
+    const solvedList = solve(currentShow, members);
 
     let html = "";
-    let used = new Set();
 
-    // --- メインポジションの表示（横並び） ---
-    currentShow.songs.forEach(song => {
-        html += `<div style="margin-bottom:20px;">`;
+    // ✅ パターンごと表示だけにする
+    solvedList.forEach((solved, patternIndex) => {
 
-        // 曲名
-        html += `<div style="font-weight:bold; margin-bottom:8px;">${song.name}</div>`;
+        let used = new Set();
 
-        // 横並びコンテナ
-        html += `<div style="display:flex; gap:10px; flex-wrap:wrap;">`;
+        html += `<h3 style="background:#eee; padding:5px;">
+            パターン ${patternIndex + 1}
+        </h3>`;
 
-        song.positions.forEach((_, idx) => {
-            const slotIndex = slots.findIndex(s =>
-                s.song === song.name && s.index === idx
-            );
+        currentShow.songs.forEach(song => {
+            html += `<div style="margin-bottom:20px;">`;
 
-            const name = solved?.[slotIndex];
+            html += `<div style="font-weight:bold; margin-bottom:8px;">
+                ${song.name}
+            </div>`;
 
+            html += `<div style="display:flex; gap:10px; flex-wrap:wrap;">`;
+
+            song.positions.forEach((_, idx) => {
+
+                const slotIndex = slots.findIndex(s =>
+                    s.song === song.name && s.index === idx
+                );
+
+                const name = solved?.[slotIndex];
+
+                html += `<div style="
+                    min-width:120px;
+                    padding:6px;
+                    border:1px solid #ddd;
+                    border-radius:6px;
+                    background:#fafafa;
+                    text-align:center;
+                ">`;
+
+                html += `<div style="font-size:0.75em; color:#666;">
+                    ${idx + 1}
+                </div>`;
+
+                if (name) {
+                    used.add(name);
+
+                    const colorStr = MEMBER_COLORS[name] || "";
+                    let colorBadges = "";
+
+                    if (colorStr) {
+                        const colors = colorStr.split("×");
+                        colorBadges = colors.map((c, i, arr) => {
+                            const badge = `<span ${getSingleColorStyle(c)}>${c.trim()}</span>`;
+                            return i < arr.length - 1 ? `${badge}×` : badge;
+                        }).join("");
+                    }
+                    html += `<div style="font-weight:bold;">${name}</div>`;
+                    html += `<div style="margin-top:4px;">${colorBadges}</div>`;
+                } else {
+                    html += `<div style="color:#ccc;">未確定</div>`;
+                }
+
+                html += `</div>`;
+            });
+
+            html += `</div>`;
+            html += `</div>`;
+        });
+
+        // ✅ 未使用表示
+        const unused = members.filter(m => !used.has(m));
+
+        if (unused.length) {
+            html += `<div style="color:orange;">
+                未使用：${unused.join("、")}
+            </div>`;
+
+            
             html += `<div style="
-            min-width:120px;
-            padding:6px;
-            border:1px solid #ddd;
-            border-radius:6px;
-            background:#fafafa;
-            text-align:center;
-        ">`;
+                display:flex;
+                gap:10px;
+                flex-wrap:wrap;
+                margin-top:10px;
+            ">`;
 
-            html += `<div style="font-size:0.75em; color:#666;">${idx + 1}</div>`;
 
-            if (name) {
-                used.add(name);
+            unused.forEach(m => {
 
-                const colorStr = MEMBER_COLORS[name] || "";
+                const colorStr = MEMBER_COLORS[m] || "";
                 let colorBadges = "";
 
                 if (colorStr) {
                     const colors = colorStr.split("×");
-                    colorBadges = colors.map((c, i, arr) => {
+                    colorBadges = colors.map((c, idx, arr) => {
                         const badge = `<span ${getSingleColorStyle(c)}>${c.trim()}</span>`;
-                        return i < arr.length - 1 ? `${badge}×` : badge;
+                        return idx < arr.length - 1 ? `${badge} × ` : badge;
                     }).join("");
                 }
 
-                html += `<div style="font-weight:bold;">${name}</div>`;
-                html += `<div style="margin-top:4px;">${colorBadges}</div>`;
-            } else {
-                html += `<div style="color:#ccc;">未確定</div>`;
-            }
+                // ✅ ここで競合ポジを作る
+                let conflictSlots = [];
 
+                slots.forEach((slot, idx) => {
+
+                    if (Array.isArray(slot.options)) {
+
+                        if (slot.options.includes(m)) {
+
+                            const assigned = solved[idx];
+
+                            if (assigned && assigned !== m) {
+                                conflictSlots.push(
+                                    `${slot.song} ${slot.index + 1}`
+                                );
+                            }
+                        }
+                    }
+
+                });
+
+                // ✅ 表示を全部まとめる
+                html += `<div style="
+                    margin-bottom:12px;
+                    padding:8px;
+                    background:#fffaf0;
+                    border-radius:5px;
+                    min-width:180px;
+                ">`;
+
+                // 名前
+                html += `<strong style="font-size:1.0em;">${m}</strong><br>`;
+
+                // 色
+                html += `<div style="margin-top:4px;">
+                    ${colorBadges || '<span style="color:#999; font-size:0.8em;">カラー未登録</span>'}
+                </div>`;
+
+                // ✅ ここが新しい：競合ポジ
+                if (conflictSlots.length > 0) {
+                    html += `<div style="margin-top:6px; font-size:0.9em; color:#555;">
+                        → ${conflictSlots.join("<br>→ ")}
+                    </div>`;
+                }
+
+                html += `</div>`;
+
+            });
+            
             html += `</div>`;
-        });
 
-        html += `</div>`;
-        html += `</div>`;
+        }
+        
+
     });
-
-
-    // --- 未使用メンバーの表示（ここで色が出るように修正） ---
-    const unused = members.filter(m => !used.has(m));
-    if (unused.length) {
-        html += `<hr style="border: 2px solid orange; margin-top: 20px;">`;
-        html += `<h3 style="color:orange; margin-bottom: 15px;">未使用メンバー</h3>`;
-
-        unused.forEach(m => {
-            const colorStr = MEMBER_COLORS[m] || "";
-            let colorBadges = "";
-            if (colorStr) {
-                const colors = colorStr.split("×");
-                colorBadges = colors.map((c, idx, arr) => {
-                    const badge = `<span ${getSingleColorStyle(c)}>${c.trim()}</span>`;
-                    return idx < arr.length - 1 ? `${badge} × ` : badge;
-                }).join("");
-            }
-
-            // 未使用メンバーも1人ずつ枠を作って見やすくします
-            html += `<div style="margin-bottom: 12px; padding: 8px; background: #fffaf0; border-radius: 5px;">`;
-            html += `<strong style="font-size: 1.0em;">${m}</strong><br>`;
-            html += `<div style="margin-top: 4px;">${colorBadges || '<span style="color:#999; font-size:0.8em;">カラー未登録</span>'}</div>`;
-            html += `</div>`;
-        });
-    }
 
     document.getElementById("result").innerHTML = html;
 }
+
 function clearAll() {
     // テキストエリアを空にする
     document.getElementById("members").value = "";
