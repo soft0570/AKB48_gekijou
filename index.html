@@ -31,10 +31,8 @@
         textarea {
             width: 100%;
             box-sizing: border-box;
-            /* 幅がはみ出さないように */
             padding: 10px;
             font-size: 16px;
-            /* iPhoneで入力時にズームされないサイズ */
             border: 1px solid #ccc;
             border-radius: 5px;
         }
@@ -60,12 +58,10 @@
             color: #333;
         }
 
-        /* ⬇️ ここからアプリ用更新ボタンのスタイル */
         #pwa-refresh-btn {
-            display: none; /* 通常のブラウザでは隠す */
+            display: none;
         }
 
-        /* ホーム画面からアプリとして起動された時だけ右下に表示 */
         @media (display-mode: standalone), (display-mode: fullscreen) {
             #pwa-refresh-btn {
                 display: block;
@@ -74,7 +70,7 @@
                 right: 20px;
                 z-index: 9999;
                 padding: 12px 18px;
-                background-color: #007aff; /* iOS風の青 */
+                background-color: #007aff;
                 color: white;
                 border: none;
                 border-radius: 25px;
@@ -84,7 +80,7 @@
                 cursor: pointer;
             }
             #pwa-refresh-btn:active {
-                background-color: #0056b3; /* タップした時に少し暗く */
+                background-color: #0056b3;
             }
         }
     </style>
@@ -98,7 +94,9 @@
 
 
     <textarea id="members" rows="3" cols="80"></textarea><br>
+    
     <button onclick="checkPositions()">判定</button>
+    <button onclick="pasteFromClipboard()" style="color: #007aff; font-weight: bold; margin-left: 10px;">ペースト</button>
     <button onclick="clearAll()" style="color: #666; font-size: 0.8em; margin-left: 20px;">入力クリア</button>
 
     <h2>結果</h2>
@@ -106,7 +104,20 @@
 
     <button id="pwa-refresh-btn" onclick="window.location.reload(true);">🔄 アプリ更新</button>
 
-    <script src="7.js?v=1.0.1"></script>
+    <script>
+        async function pasteFromClipboard() {
+            try {
+                // クリップボードからテキストを読み込み
+                const text = await navigator.clipboard.readText();
+                // テキストエリアにセット
+                document.getElementById('members').value = text;
+            } catch (err) {
+                alert('ペーストに失敗しました。ブラウザのアクセス許可（クリップボードの利用）を確認してください。');
+            }
+        }
+    </script>
+
+    <script src="7.js?v=1.0.2"></script>
 </body>
 
 </html>
