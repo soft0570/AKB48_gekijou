@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>ポジション判定</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ポジ判定">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         .penlight {
@@ -55,6 +59,34 @@
         strong {
             color: #333;
         }
+
+        /* ⬇️ ここからアプリ用更新ボタンのスタイル */
+        #pwa-refresh-btn {
+            display: none; /* 通常のブラウザでは隠す */
+        }
+
+        /* ホーム画面からアプリとして起動された時だけ右下に表示 */
+        @media (display-mode: standalone), (display-mode: fullscreen) {
+            #pwa-refresh-btn {
+                display: block;
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 9999;
+                padding: 12px 18px;
+                background-color: #007aff; /* iOS風の青 */
+                color: white;
+                border: none;
+                border-radius: 25px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                font-size: 14px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            #pwa-refresh-btn:active {
+                background-color: #0056b3; /* タップした時に少し暗く */
+            }
+        }
     </style>
 </head>
 
@@ -72,7 +104,9 @@
     <h2>結果</h2>
     <div id="result"></div>
 
-    <script src="7.js"></script>
+    <button id="pwa-refresh-btn" onclick="window.location.reload(true);">🔄 アプリ更新</button>
+
+    <script src="7.js?v=1.0.1"></script>
 </body>
 
 </html>
